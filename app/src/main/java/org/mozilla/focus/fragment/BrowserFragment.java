@@ -269,8 +269,6 @@ public class BrowserFragment extends WebFragment implements View.OnClickListener
 
                     progressView.setProgress(5);
                     progressView.setVisibility(View.VISIBLE);
-
-
                 } else {
                     backgroundTransitionGroup.startTransition(ANIMATION_DURATION);
 

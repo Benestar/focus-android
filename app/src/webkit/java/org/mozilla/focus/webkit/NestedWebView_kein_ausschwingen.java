@@ -1,0 +1,142 @@
+package org.mozilla.focus.webkit;
+
+import android.content.Context;
+import android.support.v4.view.MotionEventCompat;
+import android.support.v4.view.NestedScrollingChild;
+import android.support.v4.view.NestedScrollingChildHelper;
+import android.support.v4.view.ViewCompat;
+import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.ViewConfiguration;
+import android.webkit.WebView;
+
+/**
+ * Created by llf on 2015/7/8.
+ */
+public class NestedWebView_kein_ausschwingen extends WebView implements NestedScrollingChild {
+    private int mLastX, mLastY, mTouchY, mTouchSlop;
+    private final int[] mScrollOffset = new int[2];
+    private final int[] mScrollConsumed = new int[2];
+    private int mNestedOffsetY;
+
+    private boolean mTouchCancel;
+    private NestedScrollingChildHelper mChildHelper;
+
+    public NestedWebView_kein_ausschwingen(Context context) {
+        this(context, null);
+    }
+
+    public NestedWebView_kein_ausschwingen(Context context, AttributeSet attrs) {
+        this(context, attrs, 0);
+    }
+
+    public NestedWebView_kein_ausschwingen(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        mChildHelper = new NestedScrollingChildHelper(this);
+        setNestedScrollingEnabled(true);
+
+        mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+    }
+
+    @Override public void setNestedScrollingEnabled(boolean enabled) {
+        mChildHelper.setNestedScrollingEnabled(enabled);
+    }
+
+    @Override public boolean isNestedScrollingEnabled() {
+        return mChildHelper.isNestedScrollingEnabled();
+    }
+
+    @Override public boolean startNestedScroll(int axes) {
+        return mChildHelper.startNestedScroll(axes);
+    }
+
+    @Override public void stopNestedScroll() {
+        mChildHelper.stopNestedScroll();
+    }
+
+    @Override public boolean hasNestedScrollingParent() {
+        return mChildHelper.hasNestedScrollingParent();
+    }
+
+    @Override public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed,
+                                                  int[] offsetInWindow) {
+        return mChildHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, offsetInWindow);
+    }
+
+    @Override public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
+        return mChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
+    }
+
+    @Override public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
+        return mChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
+    }
+
+    @Override public boolean dispatchNestedPreFling(float velocityX, float velocityY) {
+        return mChildHelper.dispatchNestedPreFling(velocityX, velocityY);
+    }
+
+    @Override public boolean onTouchEvent(MotionEvent event) {
+        if (!isNestedScrollingEnabled())
+            return super.onTouchEvent(event);
+        boolean rs = false;
+        final int action = MotionEventCompat.getActionMasked(event);
+        if (action == MotionEvent.ACTION_DOWN) {
+            mNestedOffsetY = 0;
+            super.onTouchEvent(event);
+        }
+        MotionEvent ne = MotionEvent.obtain(event);
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                rs = super.onTouchEvent(ne);
+                startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL);
+                mTouchCancel = false;
+                mLastX = (int) event.getX();
+                mLastY = (int) event.getY();
+                mTouchY = mLastY;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                final int y = (int) event.getY();
+                if (Math.abs(mTouchY - y) >= mTouchSlop) {
+                    //cancel click,Long click
+                    if(!mTouchCancel){
+                        mTouchCancel = true;
+                        event.setAction(MotionEvent.ACTION_CANCEL);
+                        super.onTouchEvent(event);
+                    }
+
+                    int x = (int) event.getX();
+                    int dx = mLastX - x;
+                    int dy = mLastY - y;
+                    int oldY = getScrollY();
+                    if (dispatchNestedPreScroll(0, dy, mScrollConsumed, mScrollOffset)) {
+                        dy -= mScrollConsumed[1];
+                        mNestedOffsetY += mScrollOffset[1];
+                    }
+
+                    //
+                    overScrollBy(dx, dy, getScrollX(), oldY, computeHorizontalScrollRange(),
+                            computeVerticalScrollRange(), computeHorizontalScrollExtent(),
+                            computeVerticalScrollExtent(), true);
+                    mLastX = x;
+                    mLastY = y - mScrollOffset[1];
+                    int scrollDelta = getScrollY() - oldY;
+                    dy -= scrollDelta;
+                    if (dispatchNestedScroll(0, scrollDelta, 0, dy, mScrollOffset)) {
+                        mNestedOffsetY += mScrollOffset[1];
+                        mLastY -= mScrollOffset[1];
+                    }
+                    rs = true;
+                } else {
+                    rs = super.onTouchEvent(event);
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                if(!mTouchCancel)
+                    rs = super.onTouchEvent(ne);
+                stopNestedScroll();
+                break;
+        }
+        return rs;
+    }
+}
