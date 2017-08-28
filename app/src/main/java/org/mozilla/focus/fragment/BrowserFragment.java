@@ -247,7 +247,6 @@ public class BrowserFragment extends WebFragment implements View.OnClickListener
         });
 
         swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh);
-//        swipeRefresh.setProgressViewOffset(false, 100, 200);
         swipeRefresh.setColorSchemeResources(R.color.colorFloatingActionButtonTint);
 
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -256,19 +255,6 @@ public class BrowserFragment extends WebFragment implements View.OnClickListener
                 reload();
             }
         });
-
-//        swipeRefresh.setOnChildScrollUpCallback(new SwipeRefreshLayout.OnChildScrollUpCallback() {
-//            @Override
-//            public boolean canChildScrollUp(SwipeRefreshLayout parent, @Nullable View child) {
-//                final IWebView webView = getWebView();
-//
-//                if (webView instanceof WebView) {
-//                    return ((WebView) webView).getScrollY() > 0;
-//                }
-//
-//                return false;
-//            }
-//        });
 
         backgroundTransitionGroup = new TransitionDrawableGroup(
                 (TransitionDrawable) urlBar.getBackground(),

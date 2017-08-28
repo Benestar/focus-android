@@ -35,7 +35,7 @@ import org.mozilla.focus.web.Download;
 import org.mozilla.focus.web.IWebView;
 import org.mozilla.focus.web.WebViewProvider;
 
-public class WebkitView extends NestedWebView implements IWebView, SharedPreferences.OnSharedPreferenceChangeListener {
+public class WebkitView extends WebView implements IWebView, SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = "WebkitView";
     private static final String KEY_CURRENTURL = "currenturl";
     private static final String KEY_STATE_UUID = "state_uuid";
