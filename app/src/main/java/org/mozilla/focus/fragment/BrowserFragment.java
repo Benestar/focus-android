@@ -28,6 +28,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,6 +37,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.URLUtil;
+import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -66,6 +68,7 @@ import org.mozilla.focus.utils.IntentUtils;
 import org.mozilla.focus.utils.UrlUtils;
 import org.mozilla.focus.web.Download;
 import org.mozilla.focus.web.IWebView;
+import org.mozilla.focus.web.WebViewProvider;
 import org.mozilla.focus.widget.AnimatedProgressBar;
 
 import java.lang.ref.WeakReference;
@@ -101,6 +104,7 @@ public class BrowserFragment extends WebFragment implements View.OnClickListener
     private ImageButton menuView;
     private View statusBar;
     private View urlBar;
+    private SwipeRefreshLayout swipeRefresh;
     private WeakReference<BrowserMenu> menuWeakReference = new WeakReference<>(null);
 
     /**
@@ -242,6 +246,30 @@ public class BrowserFragment extends WebFragment implements View.OnClickListener
             }
         });
 
+        swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh);
+//        swipeRefresh.setProgressViewOffset(false, 100, 200);
+        swipeRefresh.setColorSchemeResources(R.color.colorFloatingActionButtonTint);
+
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                reload();
+            }
+        });
+
+//        swipeRefresh.setOnChildScrollUpCallback(new SwipeRefreshLayout.OnChildScrollUpCallback() {
+//            @Override
+//            public boolean canChildScrollUp(SwipeRefreshLayout parent, @Nullable View child) {
+//                final IWebView webView = getWebView();
+//
+//                if (webView instanceof WebView) {
+//                    return ((WebView) webView).getScrollY() > 0;
+//                }
+//
+//                return false;
+//            }
+//        });
+
         backgroundTransitionGroup = new TransitionDrawableGroup(
                 (TransitionDrawable) urlBar.getBackground(),
                 (TransitionDrawable) statusBar.getBackground()
@@ -261,6 +289,7 @@ public class BrowserFragment extends WebFragment implements View.OnClickListener
                     backgroundTransitionGroup.startTransition(ANIMATION_DURATION);
 
                     progressView.setVisibility(View.GONE);
+                    swipeRefresh.setRefreshing(false);
                 }
 
                 updateBlockingBadging(loading || isBlockingEnabled());
