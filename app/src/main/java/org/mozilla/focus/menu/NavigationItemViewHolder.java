@@ -16,6 +16,9 @@ public class NavigationItemViewHolder extends BrowserMenuViewHolder {
     final View refreshButton;
     final View stopButton;
 
+    final View bookmarkButton;
+    final View removeBookmarkButton;
+
     public NavigationItemViewHolder(View itemView, BrowserFragment fragment) {
         super(itemView);
 
@@ -26,6 +29,14 @@ public class NavigationItemViewHolder extends BrowserMenuViewHolder {
         stopButton.setOnClickListener(this);
 
         updateLoading(fragment.getSession().getLoading().getValue());
+
+        bookmarkButton = itemView.findViewById(R.id.bookmark);
+        bookmarkButton.setOnClickListener(this);
+
+        removeBookmarkButton = itemView.findViewById(R.id.remove_bookmark);
+        removeBookmarkButton.setOnClickListener(this);
+
+        updateBookmarked(false); // TODO
 
         final View forwardView = itemView.findViewById(R.id.forward);
         if (!fragment.canGoForward()) {
@@ -39,5 +50,10 @@ public class NavigationItemViewHolder extends BrowserMenuViewHolder {
     public void updateLoading(boolean loading) {
         refreshButton.setVisibility(loading ? View.GONE : View.VISIBLE);
         stopButton.setVisibility(loading ? View.VISIBLE : View.GONE);
+    }
+
+    public void updateBookmarked(boolean bookmarked) {
+        bookmarkButton.setVisibility(bookmarked ? View.GONE : View.VISIBLE);
+        removeBookmarkButton.setVisibility(bookmarked ? View.VISIBLE : View.GONE);
     }
 }

@@ -721,14 +721,15 @@ public class BrowserFragment extends WebFragment implements View.OnClickListener
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.menu:
+            case R.id.menu: {
                 BrowserMenu menu = new BrowserMenu(getActivity(), this, session.getCustomTabConfig());
                 menu.show(menuView);
 
                 menuWeakReference = new WeakReference<>(menu);
                 break;
+            }
 
-            case R.id.display_url:
+            case R.id.display_url: {
                 final Fragment urlFragment = UrlInputFragment
                         .createWithSession(session, urlView);
 
@@ -737,6 +738,7 @@ public class BrowserFragment extends WebFragment implements View.OnClickListener
                         .add(R.id.container, urlFragment, UrlInputFragment.FRAGMENT_TAG)
                         .commit();
                 break;
+            }
 
             case R.id.erase: {
                 erase();
@@ -754,6 +756,24 @@ public class BrowserFragment extends WebFragment implements View.OnClickListener
                 final IWebView webView = getWebView();
                 if (webView != null) {
                     webView.goForward();
+                }
+                break;
+            }
+
+            case R.id.bookmark: {
+                Toast.makeText(getContext(), "Bookmark :)", Toast.LENGTH_SHORT).show();
+                final BrowserMenu menu = menuWeakReference.get();
+                if (menu != null) {
+                    menu.updateBookmarked(true);
+                }
+                break;
+            }
+
+            case R.id.remove_bookmark: {
+                Toast.makeText(getContext(), "Remove Bookmark :(", Toast.LENGTH_SHORT).show();
+                final BrowserMenu menu = menuWeakReference.get();
+                if (menu != null) {
+                    menu.updateBookmarked(false);
                 }
                 break;
             }

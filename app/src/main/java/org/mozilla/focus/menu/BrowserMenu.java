@@ -54,6 +54,10 @@ public class BrowserMenu extends PopupWindow {
         adapter.updateLoading(loading);
     }
 
+    public void updateBookmarked(boolean bookmarked) {
+        adapter.updateBookmarked(bookmarked);
+    }
+
     public void show(View anchor) {
         final int xOffset = ViewUtils.isRTL(anchor) ? -anchor.getWidth() : 0;
 

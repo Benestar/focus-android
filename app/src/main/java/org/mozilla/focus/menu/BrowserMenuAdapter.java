@@ -130,6 +130,17 @@ public class BrowserMenuAdapter extends RecyclerView.Adapter<BrowserMenuViewHold
         }
     }
 
+    public void updateBookmarked(boolean bookmarked) {
+        if (navigationItemViewHolderReference == null) {
+            return;
+        }
+
+        final NavigationItemViewHolder navigationItemViewHolder = navigationItemViewHolderReference.get();
+        if (navigationItemViewHolder != null) {
+            navigationItemViewHolder.updateBookmarked(bookmarked);
+        }
+    }
+
     @Override
     public BrowserMenuViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         final LayoutInflater inflater = LayoutInflater.from(parent.getContext());

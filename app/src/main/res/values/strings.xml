@@ -375,4 +375,10 @@ be temporary, and you can try again later.</li>
     * To see how this string will look like in Android's UI, see: https://github.com/mozilla-mobile/focus-android/issues/863#issuecomment-324105723
     -->
     <string name="notification_browsing_session_channel_description">TBD</string>
+
+    <!-- TODO -->
+    <string name="content_description_bookmark">Bookmark website</string>
+
+    <!-- TODO -->
+    <string name="content_description_remove_bookmark">Remove website</string>
 </resources>

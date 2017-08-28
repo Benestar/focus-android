@@ -19,6 +19,24 @@
         android:src="@drawable/ic_forward"/>
 
     <ImageButton
+        android:id="@+id/bookmark"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_weight="1"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/content_description_bookmark"
+        android:src="@drawable/ic_bookmark"/>
+
+    <ImageButton
+        android:id="@+id/remove_bookmark"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_weight="1"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/content_description_remove_bookmark"
+        android:src="@drawable/ic_bookmark_filled"/>
+
+    <ImageButton
         android:id="@+id/refresh"
         android:layout_width="0dp"
         android:layout_height="48dp"
