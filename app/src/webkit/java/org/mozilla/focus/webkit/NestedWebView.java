@@ -51,10 +51,59 @@ public class NestedWebView extends WebView implements NestedScrollingChild, Nest
 
     public NestedWebView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        setOverScrollMode(WebView.OVER_SCROLL_NEVER);
+        setOverScrollMode(WebView.OVER_SCROLL_IF_CONTENT_SCROLLS);
         initScrollView();
         mChildHelper = new NestedScrollingChildHelper(this);
         setNestedScrollingEnabled(true);
+    }
+
+    // NestedScrollingChild
+
+    @Override
+    public void setNestedScrollingEnabled(boolean enabled) {
+        mChildHelper.setNestedScrollingEnabled(enabled);
+    }
+
+    @Override
+    public boolean isNestedScrollingEnabled() {
+        return mChildHelper.isNestedScrollingEnabled();
+    }
+
+    @Override
+    public boolean startNestedScroll(int axes) {
+        return mChildHelper.startNestedScroll(axes);
+    }
+
+    @Override
+    public void stopNestedScroll() {
+        mChildHelper.stopNestedScroll();
+    }
+
+    @Override
+    public boolean hasNestedScrollingParent() {
+        return mChildHelper.hasNestedScrollingParent();
+    }
+
+    @Override
+    public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
+                                        int dyUnconsumed, int[] offsetInWindow) {
+        return mChildHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                offsetInWindow);
+    }
+
+    @Override
+    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
+        return mChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
+    }
+
+    @Override
+    public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
+        return mChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
+    }
+
+    @Override
+    public boolean dispatchNestedPreFling(float velocityX, float velocityY) {
+        return mChildHelper.dispatchNestedPreFling(velocityX, velocityY);
     }
 
     private void initScrollView() {
@@ -65,8 +114,8 @@ public class NestedWebView extends WebView implements NestedScrollingChild, Nest
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
     }
 
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
+//    @Override
+    public boolean fonInterceptTouchEvent(MotionEvent ev) {
         /*
          * This method JUST determines whether we want to intercept the motion.
          * If we return true, onMotionEvent will be called and we do the actual
@@ -175,7 +224,7 @@ public class NestedWebView extends WebView implements NestedScrollingChild, Nest
 
         MotionEvent vtev = MotionEvent.obtain(ev);
 
-        final int actionMasked = MotionEventCompat.getActionMasked(ev);
+        final int actionMasked = ev.getActionMasked();
 
         if (actionMasked == MotionEvent.ACTION_DOWN) {
             mNestedYOffset = 0;
@@ -241,6 +290,7 @@ public class NestedWebView extends WebView implements NestedScrollingChild, Nest
                     final int scrolledDeltaY = getScrollY() - oldY;
                     final int unconsumedY = deltaY - scrolledDeltaY;
                     if (dispatchNestedScroll(0, scrolledDeltaY, 0, unconsumedY, mScrollOffset)) {
+                        Log.d("NestedWebView", "dispatchNestedScroll (2)");
                         mLastMotionY -= mScrollOffset[1];
                         vtev.offsetLocation(0, mScrollOffset[1]);
                         mNestedYOffset += mScrollOffset[1];
@@ -360,52 +410,6 @@ public class NestedWebView extends WebView implements NestedScrollingChild, Nest
 
             ViewCompat.postInvalidateOnAnimation(this);
         }
-    }
-
-    @Override
-    public boolean isNestedScrollingEnabled() {
-        return mChildHelper.isNestedScrollingEnabled();
-    }
-
-    @Override
-    public void setNestedScrollingEnabled(boolean enabled) {
-        mChildHelper.setNestedScrollingEnabled(enabled);
-    }
-
-    @Override
-    public boolean startNestedScroll(int axes) {
-        return mChildHelper.startNestedScroll(axes);
-    }
-
-    @Override
-    public void stopNestedScroll() {
-        mChildHelper.stopNestedScroll();
-    }
-
-    @Override
-    public boolean hasNestedScrollingParent() {
-        return mChildHelper.hasNestedScrollingParent();
-    }
-
-    @Override
-    public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed,
-                                        int[] offsetInWindow) {
-        return mChildHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, offsetInWindow);
-    }
-
-    @Override
-    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
-        return mChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
-    }
-
-    @Override
-    public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
-        return mChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
-    }
-
-    @Override
-    public boolean dispatchNestedPreFling(float velocityX, float velocityY) {
-        return mChildHelper.dispatchNestedPreFling(velocityX, velocityY);
     }
 
     @Override
