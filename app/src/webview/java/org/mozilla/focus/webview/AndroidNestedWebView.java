@@ -27,7 +27,6 @@ import android.content.Context;
 import android.support.v4.view.NestedScrollingChild2;
 import android.support.v4.view.NestedScrollingChildHelper;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.EdgeEffectCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -49,8 +48,6 @@ public class AndroidNestedWebView extends WebView implements NestedScrollingChil
     private static final String TAG = "NestedWebView";
 
     private OverScroller mScroller;
-    private EdgeEffect mEdgeGlowTop;
-    private EdgeEffect mEdgeGlowBottom;
 
     /**
      * Position of the last motion event.
@@ -198,18 +195,6 @@ public class AndroidNestedWebView extends WebView implements NestedScrollingChil
 
     // ... (omitted)
 
-    private boolean inChild(int x, int y) {
-        if (getChildCount() > 0) {
-            final int scrollY = getScrollY();
-            final View child = getChildAt(0);
-            return !(y < child.getTop() - scrollY
-                    || y >= child.getBottom() - scrollY
-                    || x < child.getLeft()
-                    || x >= child.getRight());
-        }
-        return false;
-    }
-
     private void initOrResetVelocityTracker() {
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
@@ -292,11 +277,6 @@ public class AndroidNestedWebView extends WebView implements NestedScrollingChil
 
             case MotionEvent.ACTION_DOWN: {
                 final int y = (int) ev.getY();
-                if (!inChild((int) ev.getX(), y)) {
-                    mIsBeingDragged = false;
-                    recycleVelocityTracker();
-                    break;
-                }
 
                 /*
                  * Remember location of down touch.
@@ -413,18 +393,8 @@ public class AndroidNestedWebView extends WebView implements NestedScrollingChil
                     mLastMotionY = y - mScrollOffset[1];
 
                     final int oldY = getScrollY();
-                    final int range = getScrollRange();
-                    final int overscrollMode = getOverScrollMode();
-                    boolean canOverscroll = overscrollMode == View.OVER_SCROLL_ALWAYS
-                            || (overscrollMode == View.OVER_SCROLL_IF_CONTENT_SCROLLS && range > 0);
 
-                    // Calling overScrollByCompat will call onOverScrolled, which
-                    // calls onScrollChanged if applicable.
-                    if (overScrollByCompat(0, deltaY, 0, getScrollY(), 0, range, 0,
-                            0, true) && !hasNestedScrollingParent(ViewCompat.TYPE_TOUCH)) {
-                        // Break our velocity if we hit a scroll barrier.
-                        mVelocityTracker.clear();
-                    }
+                    // omitted because of bugs ...
 
                     final int scrolledDeltaY = getScrollY() - oldY;
                     final int unconsumedY = deltaY - scrolledDeltaY;
@@ -433,27 +403,6 @@ public class AndroidNestedWebView extends WebView implements NestedScrollingChil
                         mLastMotionY -= mScrollOffset[1];
                         vtev.offsetLocation(0, mScrollOffset[1]);
                         mNestedYOffset += mScrollOffset[1];
-                    } else if (canOverscroll) {
-                        ensureGlows();
-                        final int pulledToY = oldY + deltaY;
-                        if (pulledToY < 0) {
-                            EdgeEffectCompat.onPull(mEdgeGlowTop, (float) deltaY / getHeight(),
-                                    ev.getX(activePointerIndex) / getWidth());
-                            if (!mEdgeGlowBottom.isFinished()) {
-                                mEdgeGlowBottom.onRelease();
-                            }
-                        } else if (pulledToY > range) {
-                            EdgeEffectCompat.onPull(mEdgeGlowBottom, (float) deltaY / getHeight(),
-                                    1.f - ev.getX(activePointerIndex)
-                                            / getWidth());
-                            if (!mEdgeGlowTop.isFinished()) {
-                                mEdgeGlowTop.onRelease();
-                            }
-                        }
-                        if (mEdgeGlowTop != null
-                                && (!mEdgeGlowTop.isFinished() || !mEdgeGlowBottom.isFinished())) {
-                            ViewCompat.postInvalidateOnAnimation(this);
-                        }
                     }
                 }
                 break;
@@ -515,64 +464,6 @@ public class AndroidNestedWebView extends WebView implements NestedScrollingChil
         }
     }
 
-    boolean overScrollByCompat(int deltaX, int deltaY,
-                               int scrollX, int scrollY,
-                               int scrollRangeX, int scrollRangeY,
-                               int maxOverScrollX, int maxOverScrollY,
-                               boolean isTouchEvent) {
-        final int overScrollMode = getOverScrollMode();
-        final boolean canScrollHorizontal =
-                computeHorizontalScrollRange() > computeHorizontalScrollExtent();
-        final boolean canScrollVertical =
-                computeVerticalScrollRange() > computeVerticalScrollExtent();
-        final boolean overScrollHorizontal = overScrollMode == View.OVER_SCROLL_ALWAYS
-                || (overScrollMode == View.OVER_SCROLL_IF_CONTENT_SCROLLS && canScrollHorizontal);
-        final boolean overScrollVertical = overScrollMode == View.OVER_SCROLL_ALWAYS
-                || (overScrollMode == View.OVER_SCROLL_IF_CONTENT_SCROLLS && canScrollVertical);
-
-        int newScrollX = scrollX + deltaX;
-        if (!overScrollHorizontal) {
-            maxOverScrollX = 0;
-        }
-
-        int newScrollY = scrollY + deltaY;
-        if (!overScrollVertical) {
-            maxOverScrollY = 0;
-        }
-
-        // Clamp values if at the limits and record
-        final int left = -maxOverScrollX;
-        final int right = maxOverScrollX + scrollRangeX;
-        final int top = -maxOverScrollY;
-        final int bottom = maxOverScrollY + scrollRangeY;
-
-        boolean clampedX = false;
-        if (newScrollX > right) {
-            newScrollX = right;
-            clampedX = true;
-        } else if (newScrollX < left) {
-            newScrollX = left;
-            clampedX = true;
-        }
-
-        boolean clampedY = false;
-        if (newScrollY > bottom) {
-            newScrollY = bottom;
-            clampedY = true;
-        } else if (newScrollY < top) {
-            newScrollY = top;
-            clampedY = true;
-        }
-
-        if (clampedY && !hasNestedScrollingParent(ViewCompat.TYPE_NON_TOUCH)) {
-            mScroller.springBack(newScrollX, newScrollY, 0, 0, 0, getScrollRange());
-        }
-
-        onOverScrolled(newScrollX, newScrollY, clampedX, clampedY);
-
-        return clampedX || clampedY;
-    }
-
     int getScrollRange() {
         int scrollRange = 0;
         if (getChildCount() > 0) {
@@ -618,24 +509,6 @@ public class AndroidNestedWebView extends WebView implements NestedScrollingChil
 
         recycleVelocityTracker();
         stopNestedScroll(ViewCompat.TYPE_TOUCH);
-
-        if (mEdgeGlowTop != null) {
-            mEdgeGlowTop.onRelease();
-            mEdgeGlowBottom.onRelease();
-        }
-    }
-
-    private void ensureGlows() {
-        if (getOverScrollMode() != View.OVER_SCROLL_NEVER) {
-            if (mEdgeGlowTop == null) {
-                Context context = getContext();
-                mEdgeGlowTop = new EdgeEffect(context);
-                mEdgeGlowBottom = new EdgeEffect(context);
-            }
-        } else {
-            mEdgeGlowTop = null;
-            mEdgeGlowBottom = null;
-        }
     }
 
 }
