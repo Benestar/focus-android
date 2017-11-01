@@ -6,10 +6,13 @@ package org.mozilla.focus.session.ui;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.ClipData;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewAnimationUtils;
@@ -48,12 +51,39 @@ public class SessionsSheetFragment extends LocaleAwareFragment implements View.O
             }
         });
 
+        final SessionManager sessionManager = SessionManager.getInstance();
         final SessionsAdapter sessionsAdapter = new SessionsAdapter(this);
-        SessionManager.getInstance().getSessions().observe(this, sessionsAdapter);
+        sessionManager.getSessions().observe(this, sessionsAdapter);
 
         final RecyclerView sessionView = view.findViewById(R.id.sessions);
         sessionView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         sessionView.setAdapter(sessionsAdapter);
+
+        // @todo https://medium.com/@ipaulpro/drag-and-swipe-with-recyclerview-b9456d2b1aaf
+        // @todo https://www.learn2crack.com/2016/02/custom-swipe-recyclerview.html
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
+            @Override
+            public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
+                int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+                return makeMovementFlags(0, swipeFlags);
+            }
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getAdapterPosition();
+                String uuid = sessionManager.getSessions().getValue().get(position).getUUID();
+                sessionManager.removeSession(uuid);
+            }
+        });
+
+        itemTouchHelper.attachToRecyclerView(sessionView);
 
         return view;
     }

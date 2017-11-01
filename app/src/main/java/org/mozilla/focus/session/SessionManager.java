@@ -230,7 +230,7 @@ public class SessionManager {
         removeSession(currentSessionUUID);
     }
 
-    @VisibleForTesting void removeSession(String uuid) {
+    public void removeSession(String uuid) {
         final List<Session> sessions = new ArrayList<>();
 
         int removedFromPosition = -1;
