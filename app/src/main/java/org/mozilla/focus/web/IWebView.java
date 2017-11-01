@@ -109,6 +109,8 @@ public interface IWebView {
 
     boolean canGoBack();
 
+    boolean canScrollVertically(int direction);
+
     void restoreWebViewState(Session session);
 
     void saveWebViewState(@NonNull Session session);

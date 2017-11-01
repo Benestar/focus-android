@@ -241,6 +241,12 @@ public class BrowserFragment extends WebFragment implements View.OnClickListener
                     progressView.setProgress(progressView.getMax());
                     progressView.setVisibility(View.GONE);
                     swipeRefresh.setRefreshing(false);
+
+                    final IWebView webView = getWebView();
+                    if (webView != null) {
+                        // only allow refreshing when scrolling down is possible
+                        swipeRefresh.setEnabled(webView.canScrollVertically(1));
+                    }
                 }
 
                 updateBlockingBadging(loading || session.isBlockingEnabled());
