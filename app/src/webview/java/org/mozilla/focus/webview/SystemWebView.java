@@ -15,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
@@ -95,6 +96,24 @@ public class SystemWebView extends NestedWebView implements IWebView, SharedPref
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         WebViewProvider.applyAppSettings(getContext(), getSettings());
+    }
+
+    @Override
+    protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
+        if (callback != null /* clampedX || clampedY */) {
+            callback.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
+        }
+
+        super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        if (ev.getActionMasked() == MotionEvent.ACTION_UP){
+            //TODO Disable SwipeRefreshLayout
+        }
+
+        return super.onTouchEvent(ev);
     }
 
     @Override

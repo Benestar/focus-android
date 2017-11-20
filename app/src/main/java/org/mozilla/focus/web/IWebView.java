@@ -72,6 +72,8 @@ public interface IWebView {
         void resetBlockedTrackers();
 
         void onBlockingStateChanged(boolean isBlockingEnabled);
+
+        void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY);
     }
 
     interface FullscreenCallback {

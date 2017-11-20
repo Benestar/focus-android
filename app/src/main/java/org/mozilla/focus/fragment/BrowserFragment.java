@@ -218,6 +218,8 @@ public class BrowserFragment extends WebFragment implements View.OnClickListener
             }
         });
 
+
+
         session.getUrl().observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String url) {
@@ -439,6 +441,12 @@ public class BrowserFragment extends WebFragment implements View.OnClickListener
 
             @Override
             public void onBlockingStateChanged(boolean isBlockingEnabled) {}
+
+            @Override
+            public void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
+                Log.d("BrowserFragment", "onOverScrolled: " + scrollX + ", " + scrollY + ", " + clampedX + ", " + clampedY);
+                swipeRefresh.setEnabled(clampedY);
+            }
 
             @Override
             public void onLongPress(final IWebView.HitTarget hitTarget) {
