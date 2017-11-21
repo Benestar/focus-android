@@ -13,4 +13,5 @@
     <item name="add_to_homescreen" type="id" />
     <item name="help" type="id" />
     <item name="whats_new" type="id" />
+    <item name="desktop_site" type="id">Desktop site</item>
 </resources>
