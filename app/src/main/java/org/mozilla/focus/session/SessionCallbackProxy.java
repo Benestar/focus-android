@@ -84,8 +84,8 @@ public class SessionCallbackProxy implements IWebView.Callback {
     }
 
     @Override
-    public void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
-        delegate.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
+    public void onCanScrollChanged(boolean canScroll) {
+        delegate.onCanScrollChanged(canScroll);
     }
 
     @Override

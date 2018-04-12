@@ -7,6 +7,7 @@ package org.mozilla.focus.web;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.view.MotionEvent;
 import android.view.View;
 
 import org.mozilla.focus.session.Session;
@@ -73,7 +74,7 @@ public interface IWebView {
 
         void onBlockingStateChanged(boolean isBlockingEnabled);
 
-        void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY);
+        void onCanScrollChanged(boolean canScroll);
     }
 
     interface FullscreenCallback {

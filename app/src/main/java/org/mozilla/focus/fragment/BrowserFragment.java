@@ -218,7 +218,7 @@ public class BrowserFragment extends WebFragment implements View.OnClickListener
             }
         });
 
-
+        swipeRefresh.setNestedScrollingEnabled(false);
 
         session.getUrl().observe(this, new Observer<String>() {
             @Override
@@ -246,6 +246,7 @@ public class BrowserFragment extends WebFragment implements View.OnClickListener
                         progressView.setVisibility(View.GONE);
                     }
                     swipeRefresh.setRefreshing(false);
+                    swipeRefresh.setEnabled(false);
                 }
 
                 updateBlockingBadging(loading || session.isBlockingEnabled());
@@ -443,9 +444,8 @@ public class BrowserFragment extends WebFragment implements View.OnClickListener
             public void onBlockingStateChanged(boolean isBlockingEnabled) {}
 
             @Override
-            public void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
-                Log.d("BrowserFragment", "onOverScrolled: " + scrollX + ", " + scrollY + ", " + clampedX + ", " + clampedY);
-                swipeRefresh.setEnabled(clampedY);
+            public void onCanScrollChanged(boolean canScroll) {
+                swipeRefresh.setEnabled(!canScroll);
             }
 
             @Override

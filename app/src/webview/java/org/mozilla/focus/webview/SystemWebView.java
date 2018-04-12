@@ -98,19 +98,28 @@ public class SystemWebView extends NestedWebView implements IWebView, SharedPref
         WebViewProvider.applyAppSettings(getContext(), getSettings());
     }
 
+    boolean clampedY = false;
+
     @Override
     protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
-        if (callback != null /* clampedX || clampedY */) {
-            callback.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
+        Log.d("SystemWebView", "onOverScrolled: " + scrollX + ", " + scrollY + ", " + clampedX + ", " + clampedY);
+
+        if (callback != null && !clampedY) {
+            callback.onCanScrollChanged(true);
         }
+
+        this.clampedY = clampedY;
 
         super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        if (ev.getActionMasked() == MotionEvent.ACTION_UP){
-            //TODO Disable SwipeRefreshLayout
+        Log.d("SystemWebView", "onTouchEvent: " + ev);
+
+        if (callback != null && ev.getActionMasked() == MotionEvent.ACTION_UP && clampedY) {
+            callback.onCanScrollChanged(false);
+            clampedY = false;
         }
 
         return super.onTouchEvent(ev);

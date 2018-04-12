@@ -111,7 +111,7 @@ public class InfoFragment extends WebFragment {
             public void onBlockingStateChanged(boolean isBlockingEnabled) {}
 
             @Override
-            public void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {}
+            public void onCanScrollChanged(boolean canScroll) {}
         };
     }
 
